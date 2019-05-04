@@ -1,12 +1,36 @@
+import 'todomvc-app-css/index.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import { createStore, compose } from 'redux';
+import { Provider } from 'react-redux'
+import TodoApp from './containers/TodoApp';
+import rootReducer from './reducers/rootReducers';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+// Dev tool
+import DevTools from './containers/DevTools';
+import { persistState } from 'redux-devtools';
+const enhancer = compose(
+  DevTools.instrument(),
+  persistState(
+    window.location.href.match(
+      /[?&]debug_session=([^&#]+)\b/
+    )
+  )
+);
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+// initialState
+const initialState = {}
+
+// Create store
+const store = createStore(rootReducer, initialState, enhancer);
+
+const appRoot = (
+    <Provider store={store}>
+        <div>
+            <TodoApp />
+            <DevTools />
+        </div>
+    </Provider>
+)
+
+ReactDOM.render(appRoot, document.getElementById('root'))
